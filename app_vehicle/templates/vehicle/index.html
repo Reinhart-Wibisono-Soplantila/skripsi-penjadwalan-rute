@@ -1,0 +1,182 @@
+{% extends "layout/base.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block style_app %}
+<style>
+table .vehicle .btn{
+  width: 100%;
+  margin: 0;
+}
+
+table .vehicle .btn:nth-child(2){
+  margin-left: 10px
+}
+
+table .driver a{
+  width: 100%;
+  margin-right: 10px;
+}
+
+table th, td{
+  text-align: center;
+  vertical-align: middle;
+}
+table td .badge{
+  font-size: small;
+  justify-content: center;
+  display: inline-block;
+}
+</style>
+{% endblock style_app %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">{{PageHeader}}</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.vehicle.index.url %}">{{breadcrumbs.vehicle.index.name}}</a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex align-items-center">
+          <h4 class="card-title">Vehicle Table</h4>
+          {% if user|has_group:"Admin" %}
+          <a class="ms-auto" href="{% url VehicleLink %}">
+            <button class="btn btn-secondary" >
+              <i class="fa fa-plus"></i>
+              {{VehicleButton}}
+            </button>
+          </a>
+          {%endif%}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="basic-datatables" class="display table table-striped table-hover" >
+            <thead>
+              <tr>
+                <th scope="col">No.</th>
+                <th scope="col">Unit Type</th>
+                <th scope="col">Vehicle Number</th>
+                <th scope="col">Driver</th>
+                <th scope="col">Status</th>
+                
+                {% if user|has_group:"Admin" %}
+                <th style="width: 10%">Action</th>
+                {%endif%}
+              </tr>
+            </thead>
+            <tbody>
+              {% for vehicleData in VehicleDatas %}
+              <tr>
+                <td scope="'row">{{forloop.counter}}</td>
+                <td>{{vehicleData.UnitType}}</td>
+                <td>{{vehicleData.VehicleNumber}}</td>
+                <td>{{vehicleData.DriverName}}</td>
+                <td><span class="badge"> {{vehicleData.Status}}</span>  </td>
+                {% if user|has_group:"Admin" %}
+                <td class="d-flex vehicle">
+                  
+                  <a href="{% url 'app_vehicle:vehicleUpdate' vehicleNumber=vehicleData.VehicleNumber %}">
+                    <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-secondary" data-original-title="Edit Task">
+                      Edit
+                    </button>
+                  </a>
+                  <button 
+                      type="button" 
+                      class="btn btn-danger" 
+                      data-bs-toggle="modal" 
+                      data-bs-target="#deleteModal" 
+                      data-url="{% url 'app_vehicle:vehicleDelete' vehicleNumber=vehicleData.VehicleNumber %}">
+                      Delete
+                  </button>
+                </td>
+                {%endif%}
+              </tr>
+              {% endfor %} 
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
+          </div>
+          <div class="modal-body">
+              Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+              <button type="button" class="btn btn-danger" id="confirmDelete">Ya, Hapus</button>
+          </div>
+      </div>
+  </div>
+</div>
+{% endblock Content %}
+
+{% block scripts_app %}
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+
+<script>
+  $(document).ready(function () {
+    var deleteUrl = '';
+
+    // Atur URL hapus saat modal ditampilkan
+    document.getElementById('deleteModal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Tombol yang memicu modal
+        deleteUrl = button.getAttribute('data-url'); // Mengambil data-url dari tombol
+    });
+
+    // Hapus data saat pengguna mengkonfirmasi
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        window.location.href = deleteUrl;
+    });
+    $("#basic-datatables").DataTable({
+      "createdRow": function( row, data, dataIndex ) {
+          // Cari semua badge di dalam baris yang baru dibuat
+          const badges = $(row).find('span.badge');
+          badges.each(function() {
+              const text = $(this).text().trim().toLowerCase();
+              switch (text) {
+                case 'used':
+                    $(this).removeClass().addClass('badge badge-secondary');
+                    break;
+                case 'ready':
+                    $(this).removeClass().addClass('badge badge-success');
+                    break;
+                case 'repaired':
+                    $(this).removeClass().addClass('badge badge-warning');
+                    break;
+                default:
+                    $(this).removeClass().addClass('badge badge-default');
+              }
+          });
+        }
+    });
+  });
+  </script>
+{% endblock scripts_app %}

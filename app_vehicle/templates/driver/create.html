@@ -1,0 +1,79 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block content_header %}
+<div class="page-header">
+    <h3 class="fw-bold mb-3">{{pageHeader}}</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-home">
+        <a href="{% url breadcrumbs.dashboard.url %}">
+          <i class="icon-home"></i>
+        </a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="{% url breadcrumbs.vehicle.index.url %}">{{breadcrumbs.vehicle.index.name}}</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a>{{breadcrumbs.driver.add.name}}</a>
+      </li>
+    </ul>
+  </div>
+{% endblock content_header %}
+
+{% block Content %}
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">{{pageHeader}} Form</div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 col-lg-4">
+              <form action="" method='POST'>
+                {% csrf_token %}
+                <label class="mb-3"><b>General Info</b></label>
+                 <div class="form-group">
+                    {{form.FullName.label}}
+                    {{form.FullName}}
+                    {% if error.FullName %}
+                      {% for error in error.FullName %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{form.Phone.label}}
+                    {{form.Phone}}
+                    {% if error.Phone %}
+                      {% for error in error.Phone %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{form.Address.label}}
+                    {{form.Address}}
+                    {% if error.Address %}
+                      {% for error in error.Address %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="card-action">
+                  <button class="btn btn-success" type="submit">Submit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock Content %}

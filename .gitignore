@@ -1,0 +1,42 @@
+# Mengabaikan direktori virtual environment
+env/
+
+# Mengabaikan file yang dibuat oleh sistem operasi
+*.DS_Store
+*.swp
+*.swo
+
+# Mengabaikan file log dan file temporer
+*.log
+*.pot
+*.pyc
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Mengabaikan pengaturan IDE/Editor
+.vscode/
+.idea/
+
+# Mengabaikan file yang dibuat oleh test coverage tools
+.coverage
+htmlcov/
+
+# Mengabaikan file yang dibuat oleh build tools
+*.egg-info/
+dist/
+build/
+
+# Mengabaikan file migrasi yang dihasilkan Django (opsional)
+**/migrations/
+
+# Mengabaikan file yang berkaitan dengan deployment
+.env
+*.env
+
+# Mengabaikan direktori statis yang dihasilkan (opsional)
+media/
+static/files

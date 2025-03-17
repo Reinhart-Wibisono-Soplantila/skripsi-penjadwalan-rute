@@ -1,0 +1,357 @@
+{% extends "layout/base.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block style_app %}
+<style>
+  .text-center {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .large-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+</style>
+{% endblock style_app %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Report</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.report.index.url %}">{{breadcrumbs.report.index.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{breadcrumbs.report.view.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{Schedule_id}}</a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+{% comment %} Outlet Table {% endcomment %}
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex align-items-center">
+      <h4 class="card-title">Delivery Table</h4>
+      {% if user|has_group:"Admin" %}
+      
+      <!-- <div class="tab-content ms-auto" id="myTabContent">
+        {% for key, subkey in RouteListed.items %}
+          <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="tab-{{ forloop.counter }}" role="tabpanel" aria-labelledby="tab-{{ forloop.counter }}-tab">
+          
+            <a href="{% url 'app_report:add' Schedule_id=subkey.detailsVehicle.ScheduleId Vehicle_id=subkey.detailsVehicle.VehicleNumber %}">
+              <button class="btn btn-secondary" >
+                <i class="fa fa-plus"></i>
+                Add new outlet
+              </button>
+            </a>
+          </div>
+        {%endfor%}
+      </div> -->
+
+      <!-- <button 
+          type="button" 
+          class="btn btn-secondary ms-auto" 
+          data-bs-toggle="modal" 
+          data-bs-target="#addOutlet" >
+          
+          <i class="fa fa-plus"></i>
+          
+      </button> -->
+      {%endif%}
+    </div>
+  </div>
+
+  <div class="container">
+    <br>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        {% for key, subkey in RouteListed.items %}
+        <li class="nav-item" role="presentation">
+            <button 
+              class="nav-link {% if forloop.first %}active{% endif %}" 
+              id="tab-{{ forloop.counter }}-tab" 
+              data-bs-toggle="tab" 
+              data-bs-target="#tab-{{ forloop.counter }}" 
+              type="button" 
+              role="tab" 
+              aria-controls="tab-{{ forloop.counter }}" 
+              aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+
+            <span>Route {{forloop.counter}}</span>
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Tab content -->
+    <div class="tab-content" id="myTabContent">
+      {% for key, subkey in RouteListed.items %}
+      <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="tab-{{ forloop.counter }}" role="tabpanel" aria-labelledby="tab-{{ forloop.counter }}-tab">
+        <div class="card-header">
+          <h3 class="text-center">Route {{forloop.counter}}</h3>
+          <p class="my-0">There are {{subkey.detailsVehicle.TotalOutlets}} locations to go with a total distance of {{subkey.detailsVehicle.TotalDistance|floatformat:3}} Km </p>
+          <br>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="d-flex flex-column">
+                <span>Vehicle Type : {{subkey.detailsVehicle.VehicleType}}</span>
+                <span>Vehicle Number : {{subkey.detailsVehicle.VehicleNumber}}</span>
+                <span>Driver : {{subkey.detailsVehicle.DriverName}}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex justify-content-between">
+              
+                <button 
+                    type="button" 
+                    class="btn btn-secondary" 
+                    style="width: 45%;"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#changeStatus" >
+                    Change Delivery Status
+                </button>
+                
+                <a href="{% url 'app_report:maps' Schedule_id=subkey.detailsVehicle.ScheduleId Vehicle_id=subkey.detailsVehicle.VehicleNumber%}" class="btn btn-success" style="width: 45%;">
+                  Maps
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">          
+            <table 
+                id="basic-datatables-{{ forloop.counter }}" 
+                class="display table table-striped table-hover" 
+                data-vehicle-id = "{{subkey.detailsVehicle.VehicleNumber}}"
+                data-schedule-id = "{{subkey.detailsVehicle.ScheduleId}}">
+              <thead>
+                <tr>
+                  <th scope="col">No.</th>
+                  <th>
+                    <input type="checkbox" id="select-all" class="select-all">
+                  </th>
+                  <th>From </th>
+                  <th>Address </th>
+                  
+                  <th>To</th>
+                  <th>Address </th>
+
+                  <th>Distance</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for outletskey, value in subkey.detailsRoute.items %}
+                  <tr>
+                    <td scope="'row">{{forloop.counter}}</td>
+                    <td>
+                      <input type="checkbox" class="item-checkbox" value="{{ value.secondCode }}">
+                    </td>
+                    <td>{{value.firstOutlet}}</td>
+                    <td>{{value.from_address}}</td>
+                    <td>{{value.secondOutlet}}</td>
+                    <td>{{value.to_address}}</td>
+                    <td>{{value.distance|floatformat:3}} KM</td>
+                    <td>
+                      <span class="badge"> {{value.status}}</span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ganti Status -->
+<div class="modal fade" id="changeStatus" tabindex="-1" aria-labelledby="changeStatusLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="changeStatusLabel">Ganti Status Pengiriman</h5>
+          </div>
+          <form method="post" id="updateForm" class="updateForm">
+            <div class="modal-body">
+                {% csrf_token %}
+                <div class="mt-3 mb-3">
+                  <label>Pilih Status:</label>
+                  <input type="hidden" id="selected-outlets" class="selected-outlets" name="selected-outlets">
+                      {{ form.Status }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-secondary" id="updateButton">Update Status</button>
+            </div>
+            
+          </form>
+      </div>
+  </div>
+</div>
+
+<!-- Modal Tambah Toko -->
+<div class="modal fade" id="addOutlet" tabindex="-1" aria-labelledby="changeStatusLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="changeStatusLabel">Add Outlet</h5>
+          </div>
+          <!-- <form method="post" id="updateForm" class="updateForm">
+            <div class="modal-body">
+                {% csrf_token %}
+                <div class="mt-3 mb-3">
+                  <label>Pilih Status:</label>
+                  <input type="hidden" id="selected-outlets" class="selected-outlets" name="selected-outlets">
+                      {{ form.Status }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-secondary" id="updateButton">Update Status</button>
+            </div>
+            
+          </form> -->
+      </div>
+  </div>
+</div>
+{% endblock Content %}
+
+{% block scripts_app %}
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+<script>
+  $(document).ready(function() {
+    
+    $("#basic-datatables-1").DataTable({
+      "drawCallback": function( settings ) {
+        const tds = document.querySelectorAll('span.badge');
+        tds.forEach(td => {
+          const text = td.textContent.trim().toLowerCase();
+          switch (text) {
+              case 'finish':
+                  td.className = 'badge badge-success';
+                  break;
+              case 'on progress':
+                  td.className = 'badge badge-warning';
+                  break;
+              default:
+                  td.className = 'badge badge-default';
+          }
+        });
+      }
+    });
+
+
+    // Event listener for tab change
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+      var targetId = $(e.target).data('bs-target'); // Get target tab ID
+      var tableId = $(targetId).find('table').attr('id'); // Get the table ID in the active tab
+      // Initialize DataTable if it hasn't been initialized already
+      if (!$.fn.DataTable.isDataTable('#' + tableId)) {
+          $('#' + tableId).DataTable();
+      }
+    });
+
+    // Clear session storage on page load
+    sessionStorage.clear(); 
+    $('input[type="checkbox"]').prop('checked', false);
+
+    // Restore checked checkboxes from session storage
+    //$('input[type="checkbox"]').each(function() {
+    //    var id = $(this).val();
+    //    if (sessionStorage.getItem(id)) {
+    //        $(this).prop('checked', true);
+    //    }
+    //});
+    
+    // Checkbox "select all" functionality
+    $(document).on('change', '.select-all', function() {
+        var isChecked = $(this).is(':checked');
+        var table = $(this).closest('table');
+
+        table.find('.item-checkbox').each(function() {
+            $(this).prop('checked', isChecked).trigger('change');
+        });
+    });
+
+    var allSelectedOutletsData = [];
+    // Event listener for checkbox changes to track selected outlets across tabs
+    $(document).on('change', 'input.item-checkbox', function() {
+      var table = $(this).closest('table');
+      var vehicleId = table.data('vehicle-id');
+      var scheduleId = table.data('schedule-id');
+      var outletId = $(this).val();
+
+      // Find or create entry for the current table (vehicleId)
+      var entry = allSelectedOutletsData.find(data => data.vehicleId === vehicleId);
+
+      if (!entry) {
+          entry = {
+              vehicleId: vehicleId,
+              scheduleId: scheduleId,
+              selectedOutlets: []
+          };
+          allSelectedOutletsData.push(entry);
+      }
+
+      // Add or remove outlet ID from the selectedOutlets array
+      if ($(this).is(':checked')) {
+          if (!entry.selectedOutlets.includes(outletId)) {
+              entry.selectedOutlets.push(outletId);
+          }
+      } else {
+          entry.selectedOutlets = entry.selectedOutlets.filter(id => id !== outletId);
+      
+          // Jika selectedOutlets kosong setelah penghapusan, hapus seluruh objek
+          if (entry.selectedOutlets.length === 0) {
+            allSelectedOutletsData = allSelectedOutletsData.filter(entry => entry.vehicleId !== vehicleId);
+          }
+      }
+    });
+
+    // Handle form submission for any tab
+    $('.updateForm').on('submit', function(e) {
+      e.preventDefault(); // Prevent the default form submission
+      // Jika tidak ada data yang dipilih, kirimkan array kosong untuk mencegah error
+      //if (allSelectedOutletsData.length === 0) {
+      //  allSelectedOutletsData.push({
+      //      scheduleId: null,
+      //      vehicleId: null,
+      //      selectedOutlets: []
+      //  });
+      //}
+      // Update the hidden input with the combined data from allSelectedOutletsData
+      $(this).find('.selected-outlets').val(JSON.stringify(allSelectedOutletsData));
+
+      // Submit the form
+      this.submit();
+    });
+});
+</script>
+{% endblock scripts_app %}

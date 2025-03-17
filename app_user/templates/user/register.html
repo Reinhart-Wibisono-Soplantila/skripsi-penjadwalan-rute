@@ -1,0 +1,122 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block content_header %}
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Add User</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-home">
+        <a href="#">
+          <i class="icon-home"></i>
+        </a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="#">List of User</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="#">Add User</a>
+      </li>
+    </ul>
+  </div>
+{% endblock content_header %}
+
+{% block Content %}
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">{{pageHeader}} Form</div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 col-lg-4">
+              <form action="" method='POST'>
+                {% csrf_token %}
+                <label class="mb-3"><b>General Info</b></label>
+                 <div class="form-group">
+                    {{register_form.username.label}}
+                    {{register_form.username}}
+                    {% if register_form.username.errors %}
+                      {% for error in register_form.username.errors %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{register_form.email.label}}
+                    {{register_form.email}}
+                    {% if register_form.email.errors %}
+                      {% for error in register_form.email.errors %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{register_form.group.label}}
+                    {{register_form.group}}
+                    {% if register_form.group.errors %}
+                      {% for error in register_form.group.errors %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{register_form.password1.label}}
+                    {{register_form.password1}}
+                    {% if register_form.password1.errors %}
+                      {% for error in register_form.password1.errors %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{register_form.password2.label}}
+                    {{register_form.password2}}
+                    {% if register_form.password2.errors %}
+                      {% for error in register_form.password2.errors %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" id="showPassword"> 
+                    Show Password
+                  </label>
+                </div>
+                <div class="card-action">
+                  <button class="btn btn-success" type="submit">Submit</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock Content %}
+
+{% block scripts_app %}
+<script>
+  $(document).ready(function () {
+    document.getElementById('showPassword').addEventListener('change', function() {
+    var password1 = document.getElementById('id_password1');
+    var password2 = document.getElementById('id_password2');
+    if (this.checked) {
+        password1.type = 'text';
+        password2.type = 'text';
+    } else {
+        password1.type = 'password';
+        password2.type = 'password';
+    }
+  });
+})
+</script>
+
+{% endblock scripts_app %}

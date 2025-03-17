@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Kaiadmin - Bootstrap 5 Admin Dashboard</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+    
+    <!-- Custom Style -->
+    {% block style_app %}
+    {% endblock style_app %}
+    {% include "includes/styles.html" %}
+  </head>
+  <body>
+    <div id="flashMessages" class="flash-messages bootstrap-alert">
+        {% if messages %}
+            {% for message in messages %}
+                  <div style="
+                            {% if message.tags == 'error' %}
+                                background-color: #e70909; color: #ffffff;
+                            {% elif message.tags == 'success' %}
+                                background-color: #28a745; color: #ffffff;
+                            {% else %}
+                                background-color: #17a2b8; color: #ffffff;
+                            {% endif %}"
+                      class="
+                            alert {% if message.tags == 'error' %} alert-danger
+                            {% elif message.tags == 'success' %} alert-success
+                            {% else %} alert-info {% endif %}" 
+                      role="alert">
+                      {{ message }}
+                      
+                  </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <div class="wrapper">
+      <!-- Sidebar -->
+      {% include "includes/sidebar.html" %}
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        <div class="main-header">
+          <div class="main-header-logo">
+            <!-- Logo Header -->
+            <div class="logo-header" data-background-color="white">
+                <img
+                  src="{% static 'assets/img/kalla-logistic-logo.png' %}"
+                  alt="navbar brand"
+                  class="navbar-brand"
+                  height="20"
+                />
+              <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar">
+                  <i class="gg-menu-right"></i>
+                </button>
+                <button class="btn btn-toggle sidenav-toggler">
+                  <i class="gg-menu-left"></i>
+                </button>
+              </div>
+              <button class="topbar-toggler more">
+                <i class="gg-more-vertical-alt"></i>
+              </button>
+            </div>
+            <!-- End Logo Header -->
+          </div>
+          <!-- Navbar Header -->
+          {% include "includes/navbar.html" %}
+          <!-- End Navbar -->
+        </div>
+
+
+        <div class="container">
+          <div class="page-inner">
+            {% block content_header %}{% endblock content_header %}
+            {% block Content %}{% endblock Content %}
+            {% block OutletContent %}{% endblock OutletContent %}
+          </div>
+        </div>
+        <!-- {% include "includes/footer.html" %} -->
+      </div>
+      <!-- End Custom template -->
+    </div>
+    <!--   Core JS Files   -->
+    {% include "includes/scripts.html" %}
+
+    <!-- Custom Scripts -->
+    {% block scripts_app %}
+    {% endblock scripts_app %}
+  </body>
+</html>

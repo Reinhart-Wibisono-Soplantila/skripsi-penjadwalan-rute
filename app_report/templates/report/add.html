@@ -1,0 +1,175 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Add New Outlet</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.report.index.url %}">{{breadcrumbs.report.index.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{Schedule_id}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{Vehicle_id}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{breadcrumbs.report.add.name}}</a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex align-items-center">
+          <h4 class="card-title">Outlets Table</h4>
+          <button id="generate-schedule-btn" class="btn btn-secondary ms-auto">
+            Select Outlets
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">        
+          <form id="schedule-form" method="POST" > 
+            <table id="basic-datatables" class="display table table-striped table-hover">
+            {% csrf_token %}
+              <thead>
+                <tr>
+                    <th>No.</th>
+                    <th><input type="checkbox" id="select-all" class="large-checkbox"></th>
+                    <!-- <th>Outlet Code</th> -->
+                    <th>Outlet Name</th>
+                    <th>Outlet Type</th>
+                    <!-- <th>Provinsi</th> -->
+                    <th>Kabupaten/Kota</th>
+                    <th>Kecamatan</th>
+                    <th>Kelurahan</th>
+                    <!-- <th>Alamat</th> -->
+                    <th>Hari Pengiriman</th>
+                    <!-- <th>Jenis Pengiriman</th> -->
+                </tr>
+              </thead>
+              <tbody>
+                  {% for OutletDatas in OutletObject %}
+                      <tr>
+                          <td scope="row" class="text-center">{{forloop.counter}}</td>
+                          <td class="text-center">
+                            <input class="large-checkbox" type="checkbox" value="{{ OutletDatas.OutletCode }}">
+                          </td>
+                          <!-- <td>{{ OutletDatas.OutletCode }}</td> -->
+                          <td>{{ OutletDatas.OutletName }}</td>
+                          <td>{{ OutletDatas.OutletType }}</td>
+                          <!-- <td>{{ OutletDatas.Provinsi }}</td> -->
+                          <td>{{ OutletDatas.Kabupaten }}</td>
+                          <td>{{ OutletDatas.Kecamatan }}</td>
+                          <td>{{ OutletDatas.Kelurahan }}</td>
+                          <!-- <td>{{ OutletDatas.Address }}</td> -->
+                          <td>{{ OutletDatas.Days }}</td>
+                          <!-- <td>{{ OutletDatas.Delivery }}</td> -->
+                      </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+            <input type="hidden" id="selected_outlets" name="selected_outlets">
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock Content %}
+
+
+{% block scripts_app %}
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+      // Clear session storage on page load
+      sessionStorage.clear(); 
+      $('input[type="checkbox"]').prop('checked', false);
+
+      // Restore checked checkboxes from session storage
+      $('input[type="checkbox"]').each(function() {
+          var id = $(this).val();
+          if (sessionStorage.getItem(id)) {
+              $(this).prop('checked', true);
+          }
+      });
+
+      // Save checked checkboxes to session storage
+      $(document).on('change', 'input[type="checkbox"]', function() {
+          var id = $(this).val();
+          if ($(this).is(':checked')) {
+              sessionStorage.setItem(id, 'checked');
+          } else {
+              sessionStorage.removeItem(id);
+          }
+      });
+
+      $('#select-all').click(function() {
+        var isChecked = this.checked;
+        $('input[type="checkbox"]').prop('checked', isChecked);
+
+        $('input[type="checkbox"]').each(function() {
+            var id = $(this).val();
+            if (isChecked) {
+                sessionStorage.setItem(id, 'checked');
+            } else {
+                sessionStorage.removeItem(id);
+            }
+        });
+      });
+
+      // Collect all checked values before submitting the form
+      $('#schedule-form').on('submit', function() {
+          var checkedIds = [];
+          // Collect checked ids from sessionStorage
+          for (var i = 0; i < sessionStorage.length; i++) {
+              var key = sessionStorage.key(i);
+              // Validate if key is a valid ID format
+              if (/^\d+$/.test(key)) {
+                  checkedIds.push(key);
+              }
+          }
+          $('#selected_outlets').val(checkedIds.join(','));
+  
+          // Clear session storage after submitting the form
+          sessionStorage.clear();
+      });
+
+      // Clear session storage when the page is unloaded
+      $(window).on('beforeunload', function() {
+          sessionStorage.clear();
+      });
+
+      $('#generate-schedule-btn').click(function() {
+        $('#schedule-form').submit();
+      });
+      
+      $("#basic-datatables").DataTable({});
+    });
+  </script>
+{% endblock scripts_app %}

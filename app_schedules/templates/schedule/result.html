@@ -1,0 +1,168 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block style_app %}
+<style>
+  .text-center {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .large-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+</style>
+{% endblock style_app %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Creating Schedule</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.index.url %}">{{breadcrumbs.schedule.index.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.view.url %}">{{breadcrumbs.schedule.view.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.vehicle.url %}">{{breadcrumbs.schedule.vehicle.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>Result</a>
+    </li>
+  </ul>
+  <!-- <button id="generate-schedule-btn" class="btn btn-secondary ms-auto">
+    Finish
+  </button> -->
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+<form id="driver-form" method="POST">
+  {% csrf_token %}
+    {% comment %} Result Page Header {% endcomment %}
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex align-items-center">
+              <div>
+                <h4 class="card-title">The following are the results of the scheduling that has been made</h4>
+                <p class="my-0">Click Finish to save the results</p>
+              </div>
+              <button id="generate-schedule-btn" class="btn btn-secondary ms-auto">
+                Finish
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% comment %} Outlet Table {% endcomment %}
+  
+  <div class="card">
+    <div class="card-header">
+      <div class="d-flex align-items-center">
+        <h4 class="card-title">Delivery Table</h4>
+      </div>
+    </div>
+    <div class="container">
+      <br>
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        {% for key, subkey in schedule.items %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if forloop.first %}active{% endif %}" id="tab-{{ forloop.counter }}-tab" data-bs-toggle="tab" data-bs-target="#tab-{{ forloop.counter }}" type="button" role="tab" aria-controls="tab-{{ forloop.counter }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">  
+            <span>Route {{forloop.counter}}</span>
+            </button>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <!-- Tab content -->
+      <div class="tab-content" id="myTabContent">
+        {% for key, subkey in schedule.items %}
+        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="tab-{{ forloop.counter }}" role="tabpanel" aria-labelledby="tab-{{ forloop.counter }}-tab">
+        
+          <div class="card-header">
+            <hr>
+            <div class="d-flex flex-column">
+              <h3 class="text-center">Route {{forloop.counter}}</h3>
+              <p class="my-0">There are {{subkey.TotalOutlets}} locations to go with a total distance of {{subkey.distance|floatformat:3}} Km </p>
+              <br>
+              <div class="d-flex flex-column">
+                <p></p>
+                <span>Vehicle Type : {{subkey.detailsVehicle.VehicleType}}</span>
+                <span>Vehicle Number : {{subkey.detailsVehicle.VehicleNumber}}</span>
+                <span>Driver : {{subkey.detailsVehicle.DriverName}}</span>
+              </div>
+            </div>
+          </div>  
+          <div class="card-body">
+            <div class="table-responsive">          
+                <table  class="display table table-striped table-hover" >
+                  <thead>
+                    <tr>
+                      <th scope="col">No.</th>
+                      <th>From </th>
+                      <th>Address</th>
+                      <th>To</th>
+                      <th>Address</th>
+                      <th>Distance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for outletskey, value in subkey.detailsRoute.items %}
+                      <tr>
+                        <td scope="'row">{{forloop.counter}}</td>
+                        <td>{{value.from_Outlet}}</td>
+                        <td>{{value.from_address}}</td>
+                        <td>{{value.to_Outlet}}</td>
+                        <td>{{value.to_address}}</td>
+                        <td>{{value.distance|floatformat:3}} KM</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+        {%endfor%}
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock Content %}
+
+{% block scripts_app %}
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+    $('#generate-schedule-btn').click(function() {
+      $('#driver-form').submit();
+    });
+
+    $("#basic-datatables").DataTable({});
+    $("#basic-datatables2").DataTable({});
+    $("#basic-datatables3").DataTable({});
+
+  });
+  </script>
+{% endblock scripts_app %}

@@ -1,0 +1,520 @@
+{% extends "layout/base.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Dashboard</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block style_app %}
+<style>
+  .fixed-height{
+    height: 200px !important;
+  }
+  table .badge{
+    font-size:medium;
+  }
+</style>
+{% endblock style_app %}
+
+{% block Content %}
+
+{% if user|has_group:"Admin" %}
+<div class="row">
+  <div class="col-md-3">
+    <div class="card-header">
+      <div class="card fixed-height">
+        <div class="card-body">
+          <h5 class="card-title">Outlets</h5>
+          <p class="card-text">Information about our outlets we served</p>
+          <a href="{% url 'app_outlet:outletIndex'%}" class="btn btn-secondary">See <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card-header">
+      <div class="card fixed-height">
+        <div class="card-body">
+          <h5 class="card-title">Vehicle & Drivers</h5>
+          <p class="card-text">Information about our vehicles and drivers</p>
+          <a href="{% url 'app_vehicle:vehicleIndex' %}" class="btn btn-secondary">See <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card-header">
+      <div class="card fixed-height">
+        <div class="card-body">
+          <h5 class="card-title">Schedule</h5>
+          <p class="card-text">Generate scehdule</p>
+          <a href="{% url 'app_schedules:index' %}" class="btn btn-secondary">See <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card-header">
+      <div class="card fixed-height">
+        <div class="card-body">
+          <h5 class="card-title">Report</h5>
+          <p class="card-text">Information about schedule information</p>
+          <a href="{% url "app_report:index" %}" class="btn btn-secondary">See <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{%endif%}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">This Week Chart</div>
+  </div>
+  <div class="card-body">
+    <div class="chart-container">
+      <canvas id="thisWeekChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Last Week Chart</div>
+  </div>
+  <div class="card-body">
+    <div class="chart-container">
+      <canvas id="lastWeekChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Monthly Chart</div>
+  </div>
+  <div class="card-body">
+    <div class="chart-container">
+      <canvas id="monthlyChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="card">
+  <div class="card-header">
+    <div class="card-title">Laporan Pengiriman Harian Minggu Ini</div>
+  </div>
+  <div class="card-body">
+    <div class="d-flex justify-content-center md-2" style="gap: 20px;">
+      <a href="#" class="btn btn-secondary">Monday</a>
+      <a href="#" class="btn btn-outline-primary">Tuesday</a>
+      <a href="#" class="btn btn-outline-primary">Wedenesday</a>
+      <a href="#" class="btn btn-outline-primary">Thursday</a>
+      <a href="#" class="btn btn-outline-primary">Friday</a>
+      <a href="#" class="btn btn-outline-primary">Saturday</a>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="d-flex md-2" style="gap: 20px;">
+      <div class="row text-center">
+        <div class="col-md-12 my-2" style="gap: 20px;">
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+        </div>
+        <div class="col-md-12 my-2" style="gap: 20px;">
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+          <a href="#" class="btn btn-secondary">Monday</a>
+        </div>
+      </div>
+  </div>
+
+  <div class="card-body"> 
+    <div class="card-header">
+      <div class="card-title text-center">Laporan Hari Senin, 07 September 2024</div>
+    </div>
+
+    <div class="table-responsive">
+      <div class="card-header">
+        <div class="card-title">Laporan Kendaraan</div>
+      </div>
+      <table id="basic-datatables" class="display table table-striped table-hover" >
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Office</th>
+            <th>Age</th>
+            <th>Start date</th>
+            <th>Salary</th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Office</th>
+            <th>Age</th>
+            <th>Start date</th>
+            <th>Salary</th>
+          </tr>
+        </tfoot>
+        <tbody>
+          <tr>
+            <td>Tiger Nixon</td>
+            <td>System Architect</td>
+            <td>Edinburgh</td>
+            <td>61</td>
+            <td>2011/04/25</td>
+            <td>$320,800</td>
+          </tr>
+          <tr>
+            <td>Garrett Winters</td>
+            <td>Accountant</td>
+            <td>Tokyo</td>
+            <td>63</td>
+            <td>2011/07/25</td>
+            <td>$170,750</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-responsive my-5">
+      <div class="card-header"></div>
+      <div class="card-header">
+        <div class="card-title">Laporan Pengemudi</div>
+      </div>
+      <table id="basic-datatables" class="display table table-striped table-hover" >
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Office</th>
+            <th>Age</th>
+            <th>Start date</th>
+            <th>Salary</th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Office</th>
+            <th>Age</th>
+            <th>Start date</th>
+            <th>Salary</th>
+          </tr>
+        </tfoot>
+        <tbody>
+          <tr>
+            <td>Tiger Nixon</td>
+            <td>System Architect</td>
+            <td>Edinburgh</td>
+            <td>61</td>
+            <td>2011/04/25</td>
+            <td>$320,800</td>
+          </tr>
+          <tr>
+            <td>Garrett Winters</td>
+            <td>Accountant</td>
+            <td>Tokyo</td>
+            <td>63</td>
+            <td>2011/07/25</td>
+            <td>$170,750</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-responsive">
+      <div class="card-header"></div>
+      <div class="card-header">
+        <div class="card-title">Laporan Outlet</div>
+      </div>
+      <table id="basic-datatables" class="display table table-striped table-hover" >
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Office</th>
+            <th>Age</th>
+            <th>Start date</th>
+            <th>Salary</th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Office</th>
+            <th>Age</th>
+            <th>Start date</th>
+            <th>Salary</th>
+          </tr>
+        </tfoot>
+        <tbody>
+          <tr>
+            <td>Tiger Nixon</td>
+            <td>System Architect</td>
+            <td>Edinburgh</td>
+            <td>61</td>
+            <td>2011/04/25</td>
+            <td>$320,800</td>
+          </tr>
+          <tr>
+            <td>Garrett Winters</td>
+            <td>Accountant</td>
+            <td>Tokyo</td>
+            <td>63</td>
+            <td>2011/07/25</td>
+            <td>$170,750</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+</div> -->
+{% endblock Content %}
+
+{% block scripts_app %}
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+
+<!-- Chart JS -->
+<script>
+  $(document).ready(function () {
+    $("#basic-datatables").DataTable({});
+    $("#basic-datatables2").DataTable({});
+    $("#basic-datatables3").DataTable({});
+  });
+</script>
+
+<script>
+  var schedule_by_day_this_week = JSON.parse('{{ schedule_by_day_this_week_json|safe }}'),
+  schedule_by_day_last_week = JSON.parse('{{ schedule_by_day_this_last_json|safe }}'),
+  schedule_by_year = JSON.parse('{{ schedule_by_year_json|safe }}');
+
+  var thisWeekChart = document.getElementById("thisWeekChart").getContext("2d"),
+  lastWeekChart = document.getElementById("lastWeekChart").getContext("2d"),
+  monthlyChart = document.getElementById("monthlyChart").getContext("2d")
+
+  var myLineChart = new Chart(thisWeekChart, {
+    type: "line",
+    data: {
+      labels: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      datasets: [
+        {
+          label: "Total Scheduled Outlet",
+          borderColor: "#1d7af3",
+          pointBorderColor: "#FFF",
+          pointBackgroundColor: "#1d7af3",
+          pointBorderWidth: 2,
+          pointHoverRadius: 4,
+          pointHoverBorderWidth: 1,
+          pointRadius: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          borderWidth: 2,
+          data: [
+            schedule_by_day_this_week['Monday'].Count, 
+            schedule_by_day_this_week['Tuesday'].Count, 
+            schedule_by_day_this_week['Wednesday'].Count, 
+            schedule_by_day_this_week['Thursday'].Count, 
+            schedule_by_day_this_week['Friday'].Count, 
+            schedule_by_day_this_week['Saturday'].Count
+          ],
+        }
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: {
+        position: "bottom",
+        labels: {
+          padding: 10,
+          fontColor: "#1d7af3",
+        },
+      },
+      tooltips: {
+        bodySpacing: 4,
+        mode: "nearest",
+        intersect: 0,
+        position: "nearest",
+        xPadding: 10,
+        yPadding: 10,
+        caretPadding: 10,
+      },
+      layout: {
+        padding: { left: 15, right: 15, top: 15, bottom: 15 },
+      },
+    },
+  });
+
+  var myLineChart = new Chart(lastWeekChart, {
+    type: "line",
+    data: {
+      labels: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      datasets: [
+        {
+          label: "Number of Scheduled Outlets",
+          borderColor: "#1d7af3",
+          pointBorderColor: "#FFF",
+          pointBackgroundColor: "#1d7af3",
+          pointBorderWidth: 2,
+          pointHoverRadius: 4,
+          pointHoverBorderWidth: 1,
+          pointRadius: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          borderWidth: 2,
+          data: [
+            schedule_by_day_last_week['Monday'].Count, 
+            schedule_by_day_last_week['Tuesday'].Count, 
+            schedule_by_day_last_week['Wednesday'].Count, 
+            schedule_by_day_last_week['Thursday'].Count, 
+            schedule_by_day_last_week['Friday'].Count, 
+            schedule_by_day_last_week['Saturday'].Count
+          ],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: {
+        position: "bottom",
+        labels: {
+          padding: 10,
+          fontColor: "#1d7af3",
+        },
+      },
+      tooltips: {
+        bodySpacing: 4,
+        mode: "nearest",
+        intersect: 0,
+        position: "nearest",
+        xPadding: 10,
+        yPadding: 10,
+        caretPadding: 10,
+      },
+      layout: {
+        padding: { left: 15, right: 15, top: 15, bottom: 15 },
+      },
+    },
+  });
+
+  var myLineChart = new Chart(monthlyChart, {
+    type: "line",
+    data: {
+      labels: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ],
+      datasets: [
+        {
+          label: "Total Scheduled Outlet",
+          borderColor: "#1d7af3",
+          pointBorderColor: "#FFF",
+          pointBackgroundColor: "#1d7af3",
+          pointBorderWidth: 2,
+          pointHoverRadius: 4,
+          pointHoverBorderWidth: 1,
+          pointRadius: 4,
+          backgroundColor: "transparent",
+          fill: true,
+          borderWidth: 2,
+          data: [
+            schedule_by_year['January'].Count, 
+            schedule_by_year['February'].Count, 
+            schedule_by_year['March'].Count, 
+            schedule_by_year['April'].Count, 
+            schedule_by_year['May'].Count, 
+            schedule_by_year['June'].Count, 
+            schedule_by_year['July'].Count, 
+            schedule_by_year['August'].Count, 
+            schedule_by_year['September'].Count, 
+            schedule_by_year['October'].Count, 
+            schedule_by_year['November'].Count, 
+            schedule_by_year['December'].Count,
+          ],
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: {
+        position: "bottom",
+        labels: {
+          padding: 10,
+          fontColor: "#1d7af3",
+        },
+      },
+      tooltips: {
+        bodySpacing: 4,
+        mode: "nearest",
+        intersect: 0,
+        position: "nearest",
+        xPadding: 10,
+        yPadding: 10,
+        caretPadding: 10,
+      },
+      layout: {
+        padding: { left: 15, right: 15, top: 15, bottom: 15 },
+      },
+    },
+  });
+</script>
+{% endblock scripts_app %}

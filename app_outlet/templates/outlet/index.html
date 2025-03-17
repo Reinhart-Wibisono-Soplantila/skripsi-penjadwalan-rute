@@ -1,0 +1,218 @@
+{% extends "layout/base.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">{{PageHeader}}</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.outlet.index.url %}">{{breadcrumbs.outlet.index.name}}</a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block style_app %}
+<style>
+table td .btn{
+  width: 100%;
+  margin: 0
+}
+table td .btn:nth-child(1){
+  margin-bottom: 10px
+}
+table th, td{
+  text-align: center;
+  vertical-align: middle;
+}
+</style>
+{% endblock style_app %}
+
+{% block Content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex align-items-center">
+          <h4 class="card-title">Add Row</h4>
+          
+          {% if user|has_group:"Admin" %}
+          <a class="ms-auto" href="{% url link %}">
+            <button class="btn btn-secondary" >
+              <i class="fa fa-plus"></i>
+              {{linkButton}}
+            </button>
+          </a>
+          {%endif%}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table
+            id="add-row"
+            class="display table table-striped table-hover"
+          >
+            <thead>
+              <tr>
+                <th scope="col">No.</th>
+                <!-- <th scope="col">Outlet Code</th> -->
+                <th scope="col">Outet Name</th>
+                <th scope="col">Outlet Type</th>
+                <!-- <th scope="col">Provinsi</th> -->
+                <th scope="col">Kabupaten/Kota</th>
+                <th scope="col">Kecamatan</th>
+                <th scope="col">Kelurahan</th>
+                <th scope="col">PJP Day</th>
+                <th scope="col" style="width: 10%">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for data in OutletDatas %}
+                  <tr>
+                    <td scope="row">{{forloop.counter}}</td>
+                    <!-- <td>{{data.OutletCode}}</td> -->
+                    <td>{{data.OutletName}}</td>
+                    <td>{{data.OutletType}}</td>
+                    <!-- <td>{{data.Provinsi}}</td> -->
+                    <td>{{data.Kabupaten}}</td>
+                    <td>{{data.Kecamatan}}</td>
+                    <td>{{data.Kelurahan}}</td>
+                    <td>{{data.Days}}</td>
+                    <td>
+                      <a href="{% url "app_outlet:outletView" outletCode=data.OutletCode %}">
+                        <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-secondary" data-original-title="View Task">
+                            View
+                        </button>
+                      </a>
+                      
+                      {% if user|has_group:"Admin" %}
+                        <a href="{% url 'app_outlet:outletUpdate' outletCode=data.OutletCode %}"> 
+                          <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-secondary" data-original-title="Edit Task">
+                              Edit
+                          </button>
+                        </a>
+                        <button 
+                          type="button" 
+                          class="btn btn-danger" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#deleteModal" 
+                          data-url="{% url 'app_outlet:outletDelete' outletCode=data.OutletCode %}">
+                          Delete
+                      </button>
+                      {%endif%}
+                    </td>
+                  </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
+          </div>
+          <div class="modal-body">
+              Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+              <button type="button" class="btn btn-danger" id="confirmDelete">Ya, Hapus</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+{% endblock Content %}
+
+{% block scripts_app %}
+
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+      var deleteUrl = '';
+
+      // Atur URL hapus saat modal ditampilkan
+      document.getElementById('deleteModal').addEventListener('show.bs.modal', function (event) {
+          var button = event.relatedTarget; // Tombol yang memicu modal
+          deleteUrl = button.getAttribute('data-url'); // Mengambil data-url dari tombol
+      });
+
+      // Hapus data saat pengguna mengkonfirmasi
+      document.getElementById('confirmDelete').addEventListener('click', function() {
+          window.location.href = deleteUrl;
+      });
+      
+      $("#basic-datatables").DataTable({});
+      $("#basic-datatables2").DataTable({});
+
+      $("#multi-filter-select").DataTable({
+        pageLength: 5,
+        initComplete: function () {
+          this.api()
+            .columns()
+            .every(function () {
+              var column = this;
+              var select = $(
+                '<select class="form-select"><option value=""></option></select>'
+              )
+                .appendTo($(column.footer()).empty())
+                .on("change", function () {
+                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
+
+                  column
+                    .search(val ? "^" + val + "$" : "", true, false)
+                    .draw();
+                });
+
+              column
+                .data()
+                .unique()
+                .sort()
+                .each(function (d, j) {
+                  select.append(
+                    '<option value="' + d + '">' + d + "</option>"
+                  );
+                });
+            });
+        },
+      });
+
+      // Add Row
+      $("#add-row").DataTable({
+        pageLength: 5,
+      });
+
+      var action =
+        '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-secondary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+      $("#addRowButton").click(function () {
+        $("#add-row")
+          .dataTable()
+          .fnAddData([
+            $("#addName").val(),
+            $("#addPosition").val(),
+            $("#addOffice").val(),
+            action,
+          ]);
+        $("#addRowModal").modal("hide");
+      });
+    });
+  </script>
+{% endblock scripts_app %}

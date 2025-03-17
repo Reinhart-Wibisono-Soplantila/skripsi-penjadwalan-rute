@@ -1,0 +1,269 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block style_app %}
+<style>
+  .text-center {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .large-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+
+  table th, td{
+    text-align: center;
+    vertical-align: middle;
+  }
+  table td .badge{
+    font-size: small;
+    justify-content: center;
+    display: inline-block;
+  }
+  input[type="radio"] {
+    transform: scale(1.5);
+    margin-right: 10px;
+  }
+
+  modal-width{
+    width: 100%;
+  }
+</style>
+{% endblock style_app %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Creating Schedule</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.index.url %}">{{breadcrumbs.schedule.index.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.view.url %}">{{breadcrumbs.schedule.view.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.vehicle.url %}">{{breadcrumbs.schedule.vehicle.name}}</a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex align-items-center">
+            <h4 class="card-title">Vehicle Table</h4>
+            <button class="btn btn-secondary ms-auto" data-bs-toggle="modal" data-bs-target="#chooseAlgorithm">
+              Generate Schedule
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            {% if error.datas %}
+                <div class="error">{{ errors.datas }}</div>
+            {% endif %}
+            <table id="add-row" class="display table table-striped table-hover" >
+              <thead>
+                <tr>
+                  <th scope="col">No.</th>
+                  <th class="text-center">
+                    <input type="checkbox" id="select-all" class="select-all large-checkbox">
+                  </th>
+                  <th scope="col">Unit Type</th>
+                  <th scope="col">Vehicle Number</th>
+                  <th scope="col">Driver</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for VehicleDatas in VehicleObject %}
+                <tr>
+                  <td scope="'row">{{forloop.counter}}</td>
+                  <td class="text-center">
+                    <input class="large-checkbox item-checkbox" type="checkbox" value="{{VehicleDatas.VehicleNumber}}">
+                  </td>
+                  <td>{{VehicleDatas.UnitType}}</td>
+                  <td>{{VehicleDatas.VehicleNumber}}</td>
+                  <td>{{VehicleDatas.DriverName}}</td>
+                  <td><span class="badge"> {{VehicleDatas.Status}}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal Pilih Algoritma -->
+<div class="modal fade" id="chooseAlgorithm" tabindex="-1" aria-labelledby="chooseAlgorithmLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="chooseAlgorithmLabel">Select Algorithm</h5>
+          </div>
+          <form method="post" id="algoForm" class="algoForm">
+            <div class="modal-body">
+                {% csrf_token %}
+                Before generate schedule, select one of these option:
+                <div class="mt-3 mb-3">
+                  <label>
+                    <input type="radio" name="algorithm" value="GA" required> Genetic Algorithm
+                  </label><br>
+                  <label>
+                    <input type="radio" name="algorithm" value="SMO"> Spider Monkey Optimization
+                  </label>
+                  <input type="hidden" id="selected-vehicles" name="selected-vehicles">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info me-auto" data-bs-toggle="modal" data-bs-target="#help">Help</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-secondary" id="generate-schedule-btn">Submit</button>
+            </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<!-- Modal Pilih Algoritma -->
+<div class="modal fade" id="help"tabindex="-1" aria-labelledby="helpLabel" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 800px;">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="helpLabel">Penjelasan Algoritma</h5>
+      </div>
+      <div class="modal-body p-3" style="list-style-type: circle;">
+        <ul>
+          <li>Algoritma Genetika</li>
+          <p>Algoritma ini bekerja dengan meniru cara makhluk hidup berevolusi seperti melakukan seleksi individu, kawin silang, mutasi gen. 
+            ALgoritma ini memiliki keunggulan yaitu mampu bekerja dengan cepat namun hasil jarak yang diberikan masih cukup jauh.
+          </p>
+          <li>Spider Monkey Optimization</li>
+          <p>Algoritma ini bekerja dengan meniru cara bertahan hidup monyet laba-laba, yaitu hidup berkelompok, setiap kelompok akan berusaha mencari makanan,
+            jika tidak ditemukan solusi atau makanan maka kelompok tersebut akan dibagi mejadi kelompok kecil. Algoritma ini memiliki keunggulan yaitu mampu menemukan jarak yang terpendek, 
+            namun waktu yang digunakan untuk menemukan jarak terpendek sangat lama. 
+          </p>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary ms-auto" data-bs-toggle="modal" data-bs-target="#chooseAlgorithm">
+          Generate Schedule
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock Content %}
+
+{% block scripts_app %}
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+
+      // Clear session storage on page load
+      sessionStorage.clear(); 
+      $('input[type="checkbox"]').prop('checked', false);
+
+     // Checkbox "select all" functionality
+     $(document).on('change', '.select-all', function() {
+      var isChecked = $(this).is(':checked');
+      var table = $(this).closest('table');
+
+      table.find('.item-checkbox').each(function() {
+          $(this).prop('checked', isChecked).trigger('change');
+      });
+    });
+
+    var selectedVehicles = [];
+    // Event listener for checkbox changes to track selected vehicle
+    $(document).on('change', 'input.item-checkbox', function() {
+      var vehicleNumber = $(this).val();
+
+      // Add or remove outlet ID from the selectedOutlets array
+      if ($(this).is(':checked')) {
+          if (!selectedVehicles.includes(vehicleNumber)) {
+            selectedVehicles.push(vehicleNumber);
+          }
+      } else {
+          selectedVehicles = selectedVehicles.filter(id => id !== vehicleNumber);
+      }
+      console.log(selectedVehicles)
+    });
+
+    $('.algoForm').on('submit', function(e) {
+      e.preventDefault(); // Prevent the default form submission
+      // Update the hidden input with the combined data from allSelectedOutletsData
+      $(this).find('#selected-vehicles').val(JSON.stringify(selectedVehicles));
+
+      // Submit the form
+      this.submit();
+    });
+
+    
+
+    // Clear session storage when the page is unloaded
+    $(window).on('beforeunload', function() {
+        sessionStorage.clear();
+    });
+
+    $('#generate-schedule-btn').click(function() {
+      $('#vehicle-form').submit();
+    });
+
+    $("#basic-datatables").DataTable({});
+
+    $("#add-row").DataTable({
+      pageLength: 10,
+      "createdRow": function( row, data, dataIndex ) {
+          // Cari semua badge di dalam baris yang baru dibuat
+          const badges = $(row).find('span.badge');
+          badges.each(function() {
+              const text = $(this).text().trim().toLowerCase();
+              switch (text) {
+                case 'used':
+                    $(this).removeClass().addClass('badge badge-primary');
+                    break;
+                case 'ready':
+                    $(this).removeClass().addClass('badge badge-success');
+                    break;
+                case 'repaired':
+                    $(this).removeClass().addClass('badge badge-warning');
+                    break;
+                default:
+                    $(this).removeClass().addClass('badge badge-default');
+              }
+          });
+        }
+    });
+
+    var action =
+      '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-secondary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+    $("#addRowButton").click(function () {
+      $("#add-row").dataTable()
+      $("#addRowModal").modal("hide");
+    });
+  });
+  </script>
+{% endblock scripts_app %}

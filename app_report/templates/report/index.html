@@ -1,0 +1,150 @@
+{% extends "layout/base.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block style_app %}
+<style>
+  .text-center {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .large-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+  table th, td{
+    text-align: center;
+    vertical-align: middle;
+  }
+  table td .btn{
+    width: 100%;
+    margin: 0
+  }
+  table td .btn:nth-child(2){
+    margin:0px 10px;
+  }
+</style>
+{% endblock style_app %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Report</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.report.index.url %}">{{breadcrumbs.report.index.name}}</a>
+    </li>
+  </ul>
+  <!-- <button id="generate-schedule-btn" class="btn btn-secondary btn-round ms-auto">
+    Finish
+  </button> -->
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+{% comment %} Vehicle Table {% endcomment %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex align-items-center">
+          <h4 class="card-title">List of Reports</h4>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">            
+          <table id="add-row" class="display table table-striped table-hover" >
+            <thead>
+              <tr>
+                <th scope="col">No.</th>
+                <th scope="col">ScheduleCode</th>
+                <th scope="col">Date Created</th>
+                <th scope="col">Time Created</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ScheduleDatas in ScheduleObject %}
+              <tr>
+                <td scope="'row">{{forloop.counter}}</td>
+                <td>{{ScheduleDatas.Schedule_id}}</td>
+                <td>{{ScheduleDatas.Created_at|date:"F j, Y"}}</td>
+                <td>{{ScheduleDatas.Created_at|date:"g:i a" }}</td>
+                <td>
+                  <div class="form-button-action">
+                    <a href="{% url 'app_report:view' Schedule_id=ScheduleDatas.Schedule_id %}" class="btn btn-secondary">
+                      View
+                    </a>
+                    {% if user|has_group:"Admin" %}
+                      <button 
+                        type="button" 
+                        class="btn btn-danger" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#deleteModal" 
+                        data-url="{% url 'app_report:delete' Schedule_id=ScheduleDatas.Schedule_id %}">
+                        Delete
+                      </button>
+                    {%endif%}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Penghapusan</h5>
+          </div>
+          <div class="modal-body">
+              Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+              <button type="button" class="btn btn-danger" id="confirmDelete">Ya, Hapus</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+{% endblock Content %}
+
+{% block scripts_app %}
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+    var deleteUrl = '';
+
+    // Atur URL hapus saat modal ditampilkan
+    document.getElementById('deleteModal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Tombol yang memicu modal
+        deleteUrl = button.getAttribute('data-url'); // Mengambil data-url dari tombol
+    });
+
+    // Hapus data saat pengguna mengkonfirmasi
+    document.getElementById('confirmDelete').addEventListener('click', function() {
+        window.location.href = deleteUrl;
+    });
+
+    $("#basic-datatables").DataTable({});
+    $("#add-row").DataTable({});
+
+  });
+  </script>
+{% endblock scripts_app %}

@@ -1,0 +1,68 @@
+{% load static %}
+<script src="{% static '/assets/js/core/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static '/assets/js/core/popper.min.js' %}"></script>
+<script src="{% static '/assets/js/core/bootstrap.min.js' %}"></script>
+
+<!-- jQuery Scrollbar -->
+<script src="{% static 'assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js' %}"></script>
+
+<!-- Chart JS -->
+<script src="{% static 'assets/js/plugin/chart.js/chart.min.js' %}"></script>
+
+<!-- jQuery Sparkline -->
+<script src="{% static 'assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js' %}"></script>
+
+<!-- Chart Circle -->
+<script src="{% static 'assets/js/plugin/chart-circle/circles.min.js' %}"></script>
+
+<!-- Datatables -->
+<script src="{% static 'assets/js/plugin/chart-circle/circles.min.js' %}"></script>
+
+<!-- Bootstrap Notify -->
+<script src="{% static 'assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js' %}"></script>
+
+<!-- jQuery Vector Maps -->
+<script src="{% static 'assets/js/plugin/jsvectormap/jsvectormap.min.js' %}"></script>
+<script src="{% static 'assets/js/plugin/jsvectormap/world.js' %}"></script>
+
+<!-- Sweet Alert -->
+<script src="{% static 'assets/js/plugin/sweetalert/sweetalert.min.js' %}"></script>
+
+<!-- Kaiadmin JS -->
+<script src="{% static 'assets/js/kaiadmin.min.js' %}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ambil URL dari halaman saat ini
+        var currentUrl = window.location.pathname;
+        console.log("URL saat ini:", currentUrl); // Debug: cek URL saat ini
+    
+        // Ambil semua elemen <a> dalam navigasi
+        var menuItems = document.querySelectorAll("nav ul li a");
+    
+        // Loop melalui setiap elemen <a> untuk mencocokkan URL saat ini
+        menuItems.forEach(function(item) {
+            console.log("Memeriksa href:", item.getAttribute("href")); // Debug: cek setiap href
+    
+            if (item.getAttribute("href") === currentUrl) {
+                console.log("Menemukan kecocokan:", item.getAttribute("href")); // Debug: konfirmasi kecocokan
+                // Tambahkan kelas 'active' pada parent <li> jika URL cocok
+                item.parentElement.classList.add("active");
+            }
+        });
+    });
+</script>
+
+<script>
+$(document).ready(function () {
+    const flashMessages = document.getElementById('flashMessages');
+    if (flashMessages) {
+        setTimeout(function() {
+            flashMessages.style.opacity = '0';
+            setTimeout(function() {
+                flashMessages.remove();
+            }, 500); // Hapus elemen setelah transisi selesai
+        }, 3000); // Waktu tampil 3000 ms atau 3 detik
+    }
+});
+</script>

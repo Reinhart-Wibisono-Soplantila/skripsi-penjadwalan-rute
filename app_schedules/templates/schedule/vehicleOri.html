@@ -1,0 +1,222 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block style_app %}
+<style>
+  .text-center {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .large-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+
+  table th, td{
+    text-align: center;
+    vertical-align: middle;
+  }
+  table td .badge{
+    font-size: small;
+    justify-content: center;
+    display: inline-block;
+  }
+  input[type="radio"] {
+    transform: scale(1.5);
+    margin-right: 10px;
+  }
+</style>
+{% endblock style_app %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Creating Schedule</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.index.url %}">{{breadcrumbs.schedule.index.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.view.url %}">{{breadcrumbs.schedule.view.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.vehicle.url %}">{{breadcrumbs.schedule.vehicle.name}}</a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="d-flex align-items-center">
+            <h4 class="card-title">Vehicle Table</h4>
+            <button id="generate-schedule-btn" class="btn btn-secondary ms-auto">
+              Generate Schedule
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <form id="vehicle-form" method="POST">
+              {% csrf_token %}
+                
+              {% if error.datas %}
+                  <div class="error">{{ errors.datas }}</div>
+              {% endif %}
+              <table id="add-row" class="display table table-striped table-hover" >
+                <thead>
+                  <tr>
+                    <th scope="col">No.</th>
+                    <th class="text-center">
+                      <input type="checkbox" id="select-all" class="large-checkbox">
+                    </th>
+                    <th scope="col">Unit Type</th>
+                    <th scope="col">Vehicle Number</th>
+                    <th scope="col">Driver</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for VehicleDatas in VehicleObject %}
+                  <tr>
+                    <td scope="'row">{{forloop.counter}}</td>
+                    <td class="text-center">
+                      <input class="large-checkbox checkbox-input" type="checkbox" value="{{VehicleDatas.VehicleNumber}}">
+                    </td>
+                    <td>{{VehicleDatas.UnitType}}</td>
+                    <td>{{VehicleDatas.VehicleNumber}}</td>
+                    <td>{{VehicleDatas.DriverName}}</td>
+                    <td><span class="badge"> {{VehicleDatas.Status}}</span></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <input type="hidden" id="selected-vehicles" name="selected-vehicles">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock Content %}
+
+{% block scripts_app %}
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+    // Clear session storage on page load
+    sessionStorage.clear(); 
+    $('input[type="checkbox"]').prop('checked', false);
+
+    // Restore checked checkboxes from session storage
+    $('.checkbox-input').each(function() {
+      var id = $(this).val();
+      if (sessionStorage.getItem(id)) {
+          $(this).prop('checked', true);
+      }
+    });
+
+    // Save checked checkboxes to session storage
+    $(document).on('change', '.checkbox-input', function() {
+      var id = $(this).val();
+      if ($(this).is(':checked')) {
+          sessionStorage.setItem(id, 'checked');
+      } else {
+          sessionStorage.removeItem(id);
+      }
+    });
+
+    // Select all checkboxes
+    $('#select-all').click(function() {
+      var isChecked = this.checked;
+      $('.checkbox-input').prop('checked', isChecked);
+
+      $('.checkbox-input').each(function() {
+          var id = $(this).val();
+          if (isChecked) {
+              sessionStorage.setItem(id, 'checked');
+          } else {
+              sessionStorage.removeItem(id);
+          }
+      });
+    });
+
+    // Collect all checked values before submitting the form
+    $('#vehicle-form').on('submit', function() {
+      var checkedIds = [];
+      // Collect checked ids from sessionStorage
+      for (var i = 0; i < sessionStorage.length; i++) {
+          var key = sessionStorage.key(i);
+          // Validate if key is a valid vehicle number (adjust regex as needed)
+          if (/^[A-Z]{1,2} \d{1,4} [A-Z]{1,3}$/.test(key)) {
+              checkedIds.push(key);
+          }
+      }
+      $('#selected-vehicles').val(checkedIds.join(','));
+
+      // Clear session storage after submitting the form
+      sessionStorage.clear();
+    });
+
+    // Clear session storage when the page is unloaded
+    $(window).on('beforeunload', function() {
+        sessionStorage.clear();
+    });
+
+    $('#generate-schedule-btn').click(function() {
+      $('#vehicle-form').submit();
+    });
+
+    $("#basic-datatables").DataTable({});
+
+    $("#add-row").DataTable({
+      pageLength: 10,
+      "createdRow": function( row, data, dataIndex ) {
+          // Cari semua badge di dalam baris yang baru dibuat
+          const badges = $(row).find('span.badge');
+          badges.each(function() {
+              const text = $(this).text().trim().toLowerCase();
+              switch (text) {
+                case 'used':
+                    $(this).removeClass().addClass('badge badge-primary');
+                    break;
+                case 'ready':
+                    $(this).removeClass().addClass('badge badge-success');
+                    break;
+                case 'repaired':
+                    $(this).removeClass().addClass('badge badge-warning');
+                    break;
+                default:
+                    $(this).removeClass().addClass('badge badge-default');
+              }
+          });
+        }
+    });
+
+    var action =
+      '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-secondary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+    $("#addRowButton").click(function () {
+      $("#add-row").dataTable()
+      $("#addRowModal").modal("hide");
+    });
+  });
+  </script>
+{% endblock scripts_app %}

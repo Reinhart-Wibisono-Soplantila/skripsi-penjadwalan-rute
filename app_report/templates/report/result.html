@@ -1,0 +1,108 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block style_app %}
+<style>
+  .text-center {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .large-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+</style>
+{% endblock style_app %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Add New Outlet</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.report.index.url %}">{{breadcrumbs.report.index.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{Schedule_id}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{Vehicle_id}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{breadcrumbs.report.add.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a>{{breadcrumbs.report.result.name}}</a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex align-items-center">
+        <h4 class="card-title">Delivery Table</h4>
+        </div>
+    </div>
+    <div class="container">
+            <div class="card-header">
+            <hr>
+            <div class="d-flex flex-column">
+                <h3 class="text-center">Route {{forloop.counter}}</h3>
+                <p class="my-0">There are {{schedule.TotalOutlets}} locations to go with a total distance of {{schedule.distance|floatformat:3}} Km </p>
+                <br>
+                <div class="d-flex flex-column">
+                <p></p>
+                <span>Vehicle Type : {{schedule.detailsVehicle.VehicleType}}</span>
+                <span>Vehicle Number : {{schedule.detailsVehicle.VehicleNumber}}</span>
+                <span>Driver : {{schedule.detailsVehicle.DriverName}}</span>
+                </div>
+            </div>
+            </div>  
+            <div class="card-body">
+            <div class="table-responsive">          
+                <table  class="display table table-striped table-hover" >
+                    <thead>
+                    <tr>
+                        <th scope="col">No.</th>
+                        <th>From </th>
+                        <th>To</th>
+                        <th>Distance</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for  outletskey, value in schedule.detailsRoute.items %}
+                        <tr>
+                          <td scope="'row">{{forloop.counter}}</td>
+                          <td>{{value.firstOutlet}}</td>
+                          <td>{{value.secondOutlet}}</td>
+                          <td>{{value.distance|floatformat:3}} KM</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            </div>
+    </div>
+</div>
+{% endblock Content %}

@@ -1,0 +1,117 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block style_app %}
+<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+<style>
+  .text-center {
+    text-align: center;
+    vertical-align: middle;
+  }
+  .large-checkbox {
+    width: 20px;
+    height: 20px;
+  }
+  table th, td{
+    text-align: center;
+    vertical-align: middle;
+  }
+</style>
+{% endblock style_app %}
+
+{% block content_header %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Creating Schedule</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home">
+      <a href="{% url breadcrumbs.dashboard.url %}">
+        <i class="icon-home"></i>
+      </a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.index.url %}">{{breadcrumbs.schedule.index.name}}</a>
+    </li>
+    <li class="separator">
+      <i class="icon-arrow-right"></i>
+    </li>
+    <li class="nav-item">
+      <a href="{% url breadcrumbs.schedule.view.url %}">{{breadcrumbs.schedule.view.name}}</a>
+    </li>
+  </ul>
+</div>
+{% endblock content_header %}
+
+{% block Content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex align-items-center">
+          <h4 class="card-title">Outlets Table</h4>
+            <a class=" ms-auto" href="{% url "app_schedules:vehicles" %}">
+            <!-- <a class=" ms-auto" href="{% url "app_schedules:processoutlets" %}"> -->
+              <button id="generate-schedule-btn" class="btn btn-secondary">
+                Select Vehicles
+              </button>
+            </a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">        
+         
+          <table id="basic-datatables" class="display table table-striped table-hover">
+          
+            <thead>
+              <tr>
+                  <th>No.</th>
+                  <!-- <th>Outlet Code</th> -->
+                  <th>Outlet Name</th>
+                  <th>Outlet Type</th>
+                  <!-- <th>Provinsi</th> -->
+                  <!-- <th>Kabupaten/Kota</th> -->
+                  <th>Kecamatan</th>
+                  <th>Kelurahan</th>
+                  <!-- <th>Alamat</th> -->
+                  <th>Hari Pengiriman</th>
+                  <th>Jenis Pengiriman</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for data in OutletObject %}
+                    <tr>
+                        <td scope="row" class="text-center">{{forloop.counter}}</td>
+                        <!-- <td>{{ data.OutletCode }}</td> -->
+                        <td>{{ data.OutletName }}</td>
+                        <td>{{ data.OutletType }}</td>
+                        <!-- <td>{{ data.Provinsi }}</td> -->
+                        <!-- <td>{{ data.Kabupaten }}</td> -->
+                        <td>{{ data.Kecamatan }}</td>
+                        <td>{{ data.Kelurahan }}</td>
+                        <!-- <td>{{ data.Address }}</td> -->
+                        <td>{{ data.Days }}</td>
+                        <td>{{ data.Delivery }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock Content %}
+
+
+{% block scripts_app %}
+<!-- Datatables -->
+<script src="{% static '/assets/js/plugin/datatables/datatables.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+    $("#basic-datatables").DataTable({});
+
+  });
+  </script>
+{% endblock scripts_app %}

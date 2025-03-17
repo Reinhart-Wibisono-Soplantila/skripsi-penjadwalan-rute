@@ -1,0 +1,193 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block content_header %}
+<div class="page-header">
+    <h3 class="fw-bold mb-3">Update Outlet</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-home">
+        <a href="{% url breadcrumbs.dashboard.url %}">
+          <i class="icon-home"></i>
+        </a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="{% url breadcrumbs.outlet.index.url %}">{{breadcrumbs.outlet.index.name}}</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a>{{breadcrumbs.outlet.update.name}}</a>
+      </li>
+    </ul>
+  </div>
+{% endblock content_header %}
+
+{% block Content %}
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Form Update Outlet</div>
+        </div>
+        <div class="card-body">
+          <form action="" method="POST">
+            <div class="row">
+              {% csrf_token %}
+              <div class="col-md-6 col-lg-4">
+                  <label class="mb-3"><b>General Info</b></label>
+                  <div class="form-group">
+                    {{form.OutletNumber.label}}
+                    {{form.OutletNumber}}
+                    {% if error.OutletNumber %}
+                      {% for error in error.OutletNumber %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.OutletCode.label}}
+                    {{form.OutletCode}}
+                    {% if error.OutletCode %}
+                      {% for error in error.OutletCode %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.OutletName.label}}
+                    {{form.OutletName}}
+                    {% if error.OutletName %}
+                      {% for error in error.OutletName %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.OutletType.label}}
+                    {{form.OutletType}}
+                    {% if error.OutletType %}
+                      {% for error in error.OutletType %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <!-- <div class="form-group">
+                    {{form.Town.label}}
+                    {{form.Town}}
+                    {% if error.Town %}
+                      {% for error in error.Town %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.Address1.label}}
+                    {{form.Address1}}
+                    {% if error.Address1 %}
+                      {% for error in error.Address1 %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div> -->
+                  <div class="form-group">
+                    {{form.Address.label}}
+                    {{form.Address}}
+                    {% if error.Address %}
+                      {% for error in error.Address %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+              </div>
+              <div class="col-md-6 col-lg-4">
+                  <label class="mb-3"><b>Location Info</b></label>
+                  <div class="form-group">
+                    {{form.Provinsi.label}}
+                    {{form.Provinsi}}
+                    {% if error.Provinsi %}
+                      {% for error in error.Provinsi %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.Kabupaten.label}}
+                    {{form.Kabupaten}}
+                    {% if error.Kabupaten %}
+                      {% for error in error.Kabupaten %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.Kecamatan.label}}
+                    {{form.Kecamatan}}
+                    {% if error.Kecamatan %}
+                      {% for error in error.Kecamatan %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.Kelurahan.label}}
+                    {{form.Kelurahan}}
+                    {% if error.Kelurahan %}
+                      {% for error in error.Kelurahan %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.Latitude.label}}
+                    {{form.Latitude}}
+                    {% if error.Latitude %}
+                      {% for error in error.Latitude %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.Longitude.label}}
+                    {{form.Longitude}}
+                    {% if error.Longitude %}
+                      {% for error in error.Longitude %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+              </div>
+              <div class="col-md-6 col-lg-4">
+                  <label class="mb-3"><b>Delivery Info</b></label>
+                  <div class="form-group">
+                    {{form.Days.label}}
+                    {{form.Days}}
+                    {% if error.Days %}
+                      {% for error in error.Days %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+                  <div class="form-group">
+                    {{form.Delivery.label}}
+                    {{form.Delivery}}
+                    {% if error.Delivery %}
+                      {% for error in error.Delivery %}
+                        <span class="errorlist">{{error}}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
+              </div>
+            </div>
+            <div class="card-action">
+              <button class="btn btn-success" type="submit">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock Content %}

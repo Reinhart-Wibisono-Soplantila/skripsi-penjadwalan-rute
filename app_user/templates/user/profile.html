@@ -1,0 +1,99 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block content_header %}
+<div class="page-header">
+    <h3 class="fw-bold mb-3">{{pageHeader}}</h3>
+    <ul class="breadcrumbs mb-3">
+      <li class="nav-home">
+        <a href="#">
+          <i class="icon-home"></i>
+        </a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="#">Vehicles & Driver Overview</a>
+      </li>
+      <li class="separator">
+        <i class="icon-arrow-right"></i>
+      </li>
+      <li class="nav-item">
+        <a href="#">{{pageHeader}}</a>
+      </li>
+    </ul>
+  </div>
+{% endblock content_header %}
+
+{% block messages %}
+  <div id="flashMessages" class="flash-messages bootstrap-alert">
+      {% if messages %}
+          {% for message in messages %}
+                <div style="background-color:#d4edda; color:#155724;" class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+          {% endfor %}
+      {% endif %}
+  </div>
+{% endblock messages %}
+
+{% block Content %}
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">{{pageHeader}} Form</div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 col-lg-4">
+              <form action="" method='POST'>
+                {% csrf_token %}
+                {% for field in profileForm %}
+                  <div class="form-group">
+                    {{field.label_tag}}
+                    {{field}}
+                    {% for error in field.errors %}
+                      
+                        <span class="errorlist">{{error}}</span>
+                    {% endfor %}
+                  </div>
+                {% endfor %}
+                <button class="btn btn-success" type="submit">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock Content %}
+
+{% block scripts_app %}
+<script>
+  $(document).ready(function () {
+    
+    var deleteUrl = '';
+    
+    // Atur URL hapus saat modal ditampilkan
+    document.getElementById('Modal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Tombol yang memicu modal
+    });
+
+    const flashMessages = document.getElementById('flashMessages');
+    if (flashMessages) {
+        setTimeout(function() {
+            flashMessages.style.opacity = '0';
+            setTimeout(function() {
+                flashMessages.remove();
+            }, 500); // Hapus elemen setelah transisi selesai
+        }, 3000); // Waktu tampil 3000 ms atau 3 detik
+    }
+    
+    $("#basic-datatables").DataTable({});
+
+  });
+  </script>
+
+{% endblock scripts_app %}
